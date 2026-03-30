@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Magnifying glass -->
+  <circle cx="26" cy="26" r="16" fill="none" stroke="#4A90D9" stroke-width="4"/>
+  <line x1="38" y1="38" x2="56" y2="56" stroke="#4A90D9" stroke-width="4" stroke-linecap="round"/>
+  <!-- Parameter symbol (P) -->
+  <text x="19" y="33" font-family="Arial" font-size="20" font-weight="bold" fill="#2C5F8A">P</text>
+</svg>
