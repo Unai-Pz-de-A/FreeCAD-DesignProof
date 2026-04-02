@@ -4,15 +4,53 @@ Proof-test your parametric CAD models before they reach the shop floor.
 
 DesignProof is a FreeCAD workbench that systematically varies the dimensional parameters of a model and checks whether FreeCAD can successfully regenerate the geometry. It identifies fragile features, quantifies model robustness, and helps you build parametric models that actually work across their intended design range.
 
-*Screenshots will be added here.*
+Based on the parametric robustness methodology from [Aranburu et al. (2022)](#references) and [Otto & Mandorli (2024)](#references).
 
-## The story behind this project
+## Installation
 
-I'm [Unai Pz de A](https://github.com/Unai-Pz-de-A), a freelance mechanical design engineer specialized in SOLIDWORKS (and currently learning FreeCAD). I've worked across wind energy, distribution systems, and automated machinery.
+### From the Addon Manager (recommended)
 
-This plugin was born from a real frustration: parametric models that look solid until someone changes a dimension and everything breaks. The concept of parametric robustness comes from the research of Aritz Aranburu Gorrotxategi and colleagues, who formalized what experienced designers learn the hard way -- a truly robust model isn't just one that works, but one that keeps working.
+Open FreeCAD, go to **Edit > Preferences > Addon Manager**, search for **DesignProof**, and click Install.
 
-**This is my first open-source project.** I'm not a software developer -- I'm a mechanical engineer who built this with the help of [Claude Code](https://claude.ai/claude-code). If I could do it, you can contribute too. Every idea, bug report, or pull request is welcome.
+### Manual installation
+
+Copy the `DesignProof` folder to your FreeCAD Mod directory:
+
+- **Windows**: `%APPDATA%/FreeCAD/Mod/`
+- **Linux**: `~/.FreeCAD/Mod/`
+- **macOS**: `~/Library/Preferences/FreeCAD/Mod/`
+
+Restart FreeCAD. The workbench will appear in the workbench selector.
+
+### Requirements
+
+- FreeCAD 0.21 or later
+- No external Python dependencies
+
+## Screenshots
+
+### Parameter Detection
+Configure which parameters to vary, set custom ranges or use preset margins, and choose the variation mode.
+
+![Parameter detection panel](Resources/screenshots/01_param_panel.jpg)
+
+### Running Analysis
+The analysis runs variation by variation, showing real-time progress over the 3D model.
+
+![Analysis in progress](Resources/screenshots/02_analysis_running.jpg)
+
+### Analysis Results
+Results dialog with robustness rating, success rate, and detailed per-variation breakdown. Export to CSV for further analysis.
+
+![Analysis results dialog](Resources/screenshots/03_analysis_results.jpg)
+
+### Model Metrics
+Standalone dependency analysis with complexity metrics (Li entropy, cyclomatic complexity, graph density) and full feature dependency table.
+
+![Model metrics dialog](Resources/screenshots/04_model_metrics.jpg)
+
+### Full Workflow
+![DesignProof workflow demo](Resources/screenshots/05_workflow_demo.gif)
 
 ## Features
 
@@ -30,37 +68,6 @@ In the default **OAT (One-at-a-Time)** mode, each parameter is varied independen
 
 This approach isolates the effect of each parameter, making it straightforward to pinpoint which dimensions and features are fragile. Full Factorial and Random Sampling modes are available for more thorough or exploratory analysis.
 
-## Validated results
-
-Tested on 5 models of varying complexity via FreeCAD 1.0.2:
-
-| Model | Type | Parameters | Variations | Success Rate | Rating |
-|-------|------|-----------|------------|-------------|--------|
-| Bracket (Rookies060) | PartDesign | 26 | 107 | 100.0% | EXCELLENT |
-| Flange (Rookies062) | PartDesign | 14 | 58 | 100.0% | EXCELLENT |
-| Lever (Rookies063) | PartDesign | 20 | 81 | 100.0% | EXCELLENT |
-| Part (Rookies064) | Part WB | 23 | 93 | 100.0% | EXCELLENT |
-| TestModel | PartDesign | 7 | 29 | 93.1% | EXCELLENT |
-
-Test models sourced from the FreeCAD Rookies series by Paulo Ferreira 3D (GrabCAD). Mode: OAT, +/-30%, 5 steps.
-
-## Requirements
-
-- FreeCAD 1.0 or later
-- No external Python dependencies
-
-## Installation
-
-### Manual
-
-Copy the `DesignProof` folder to your FreeCAD Mod directory:
-
-- **Linux**: `~/.FreeCAD/Mod/`
-- **Windows**: `%APPDATA%/FreeCAD/Mod/`
-- **macOS**: `~/Library/Preferences/FreeCAD/Mod/`
-
-Restart FreeCAD. The workbench will appear in the workbench selector.
-
 ## Usage
 
 1. Open a parametric model (`.FCStd`) in FreeCAD.
@@ -73,7 +80,7 @@ Restart FreeCAD. The workbench will appear in the workbench selector.
    - **Model Metrics** -- Complexity and dependency metrics.
 6. Use **Model Metrics** from the toolbar for standalone dependency analysis.
 
-## Toolbar commands
+### Toolbar commands
 
 | Command | Description |
 |---------|-------------|
@@ -81,7 +88,7 @@ Restart FreeCAD. The workbench will appear in the workbench selector.
 | Run Analysis | Execute variation test with progress dialog |
 | Model Metrics | View dependency graph and complexity metrics |
 
-## Headless usage
+### Headless usage
 
 DesignProof can also be used from FreeCAD's command line (`FreeCADcmd`) for batch processing:
 
@@ -106,26 +113,40 @@ passed = sum(1 for r in results if r.status == "PASS")
 print(f"Success rate: {passed}/{len(results)} ({passed/len(results)*100:.1f}%)")
 ```
 
+## Validated results
+
+Tested on 5 models of varying complexity with FreeCAD 1.0.2 on Windows:
+
+| Model | Type | Parameters | Variations | Success Rate | Rating |
+|-------|------|-----------|------------|-------------|--------|
+| Bracket (Rookies060) | PartDesign | 26 | 107 | 100.0% | EXCELLENT |
+| Flange (Rookies062) | PartDesign | 14 | 58 | 100.0% | EXCELLENT |
+| Lever (Rookies063) | PartDesign | 20 | 81 | 100.0% | EXCELLENT |
+| Part (Rookies064) | Part WB | 23 | 93 | 100.0% | EXCELLENT |
+| TestModel | PartDesign | 7 | 29 | 93.1% | EXCELLENT |
+
+Test models sourced from the FreeCAD Rookies series by Paulo Ferreira 3D (GrabCAD). Mode: OAT, +/-30%, 5 steps. Not yet tested on Linux or macOS -- feedback from other platforms is welcome.
+
 ## Known limitations
 
 - Only detects dimensional parameters (sketch constraints and extrusion properties). Booleans, enumerations, and placement parameters are not yet supported.
 - Does not detect parameters driven by Python expressions or linked to external files.
 - Full Factorial mode can be very slow with many parameters (exponential growth).
-- The Fillet/Chamfer features are the most common source of regeneration failures -- this is expected behavior, not a bug.
+- Fillet and Chamfer features are commonly the most sensitive to parameter changes -- in the test set used, they account for most regeneration failures.
 - Currently tested only on Windows with FreeCAD 1.0.2.
 
 ## Roadmap
 
 The goal is for DesignProof to become a comprehensive design verification toolkit. Future directions:
 
+- Geometric validation (self-intersections, degenerate edges)
 - Manufacturability checks (wall thickness, draft angles, undercuts)
 - Tolerance stack-up analysis
-- Design rule verification (minimum radii, hole spacing, etc.)
-- Batch processing of multiple models
-- Integration with FreeCAD's Assembly workbench
-- Report generation in HTML/PDF
+- Assembly verification (interference, clearance)
+- Design rule engine (configurable checks)
+- Batch processing and HTML/PDF reports
 
-All ideas are welcome -- see Contributing below.
+All ideas are welcome -- open an [issue](https://github.com/Unai-Pz-de-A/FreeCAD-DesignProof/issues) or see [Contributing](#contributing) below.
 
 ## References
 
@@ -137,21 +158,18 @@ This work is based on the methodology described in:
 
 ## Contributing
 
-This project is maintained by a mechanical engineer, not a professional developer. **Every contribution matters**, whether it's:
+This workbench is maintained by [Unai Pz de A](https://github.com/Unai-Pz-de-A), a freelance mechanical design engineer. I'm not a software developer -- I built this with the help of [Claude Code](https://claude.ai/claude-code) to solve a real problem: parametric models that look solid until someone changes a dimension and everything breaks.
+
+**This is my first open-source project.** If I could build it, you can contribute too. Every contribution matters, whether it's:
 
 - Reporting a bug or a model that produces unexpected results
+- Testing on Linux or macOS
 - Suggesting a new verification feature
 - Improving the code, documentation, or translations
 - Sharing your test results with different models
-- Proposing ideas for the roadmap
 
 Open an [issue](https://github.com/Unai-Pz-de-A/FreeCAD-DesignProof/issues) or submit a pull request. No contribution is too small.
 
 ## License
 
 [LGPL 2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
-
-## Links
-
-- [Repository](https://github.com/Unai-Pz-de-A/FreeCAD-DesignProof)
-- [Issue tracker](https://github.com/Unai-Pz-de-A/FreeCAD-DesignProof/issues)
