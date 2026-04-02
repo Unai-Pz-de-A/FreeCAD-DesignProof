@@ -3,3 +3,7 @@ __pycache__/
 *.pyo
 *.FCStd1
 *.FCBak
+
+# Private docs (never publish)
+ROADMAP.md
+feedback_channels.md
