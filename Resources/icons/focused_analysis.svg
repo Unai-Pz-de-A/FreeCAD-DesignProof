@@ -1,0 +1,18 @@
+<!-- SPDX-License-Identifier: LGPL-2.1-or-later -->
+<!-- SPDX-FileNotice: Part of the DesignProof addon. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Crosshair/target circle -->
+  <circle cx="28" cy="28" r="18" fill="none" stroke="#4A90D9" stroke-width="3"/>
+  <circle cx="28" cy="28" r="8" fill="none" stroke="#4A90D9" stroke-width="2.5"/>
+  <circle cx="28" cy="28" r="3" fill="#2C5F8A"/>
+  <!-- Crosshair lines -->
+  <line x1="28" y1="6" x2="28" y2="16" stroke="#4A90D9" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="28" y1="40" x2="28" y2="50" stroke="#4A90D9" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="6" y1="28" x2="16" y2="28" stroke="#4A90D9" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="40" y1="28" x2="50" y2="28" stroke="#4A90D9" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Small connected nodes (dependency graph hint) -->
+  <circle cx="52" cy="12" r="5" fill="none" stroke="#2C5F8A" stroke-width="2"/>
+  <circle cx="56" cy="52" r="4" fill="none" stroke="#2C5F8A" stroke-width="1.5"/>
+  <line x1="48" y1="16" x2="42" y2="24" stroke="#2C5F8A" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3,2"/>
+  <line x1="46" y1="32" x2="53" y2="48" stroke="#2C5F8A" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3,2"/>
+</svg>

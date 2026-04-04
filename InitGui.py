@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+# SPDX-FileNotice: Part of the DesignProof addon.
+
 import FreeCADGui as Gui
 
 
@@ -23,15 +26,18 @@ class DesignProofWorkbench(Gui.Workbench):
                 CmdDetectParameters,
                 CmdRunAnalysis,
                 CmdModelMetrics,
+                CmdFocusedAnalysis,
             )
 
             Gui.addCommand("DP_DetectParameters", CmdDetectParameters())
             Gui.addCommand("DP_RunAnalysis", CmdRunAnalysis())
+            Gui.addCommand("DP_FocusedAnalysis", CmdFocusedAnalysis())
             Gui.addCommand("DP_ModelMetrics", CmdModelMetrics())
 
             self.appendToolbar("DesignProof", [
                 "DP_DetectParameters",
                 "DP_RunAnalysis",
+                "DP_FocusedAnalysis",
                 "Separator",
                 "DP_ModelMetrics",
             ])
@@ -39,6 +45,7 @@ class DesignProofWorkbench(Gui.Workbench):
             self.appendMenu("DesignProof", [
                 "DP_DetectParameters",
                 "DP_RunAnalysis",
+                "DP_FocusedAnalysis",
                 "Separator",
                 "DP_ModelMetrics",
             ])

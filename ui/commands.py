@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+# SPDX-FileNotice: Part of the DesignProof addon.
 """
 FreeCAD Commands
 ================
@@ -69,3 +71,22 @@ class CmdModelMetrics:
     def Activated(self):
         from ui.metrics_dialog import show_metrics_dialog
         show_metrics_dialog()
+
+
+class CmdFocusedAnalysis:
+    """Command: Focused robustness analysis on selected parameters."""
+
+    def GetResources(self):
+        return {
+            "Pixmap": os.path.join(ICON_DIR, "focused_analysis.svg"),
+            "MenuText": "Focused Analysis",
+            "ToolTip": "Analyze robustness of selected parameters with dependency-aware variations",
+        }
+
+    def IsActive(self):
+        return App.ActiveDocument is not None
+
+    def Activated(self):
+        from ui.focused_panel import FocusedAnalysisPanel
+        panel = FocusedAnalysisPanel()
+        Gui.Control.showDialog(panel)

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+# SPDX-FileNotice: Part of the DesignProof addon.
 """
 Dependency Analyzer
 ===================
@@ -20,6 +22,7 @@ Uso:
 
 import FreeCAD as App
 import math
+from collections import deque, defaultdict
 
 
 class DependencyGraph:
@@ -91,6 +94,138 @@ def build_graph(doc=None):
                     graph.add_edge(obj.Name, dep.Name)
 
     return graph
+
+
+# ============================================================
+# TRAVERSAL: Busqueda de objetos/parametros relacionados
+# ============================================================
+
+def find_related_objects(graph, start_name, depth):
+    """
+    BFS bidireccional desde start_name hasta depth hops.
+    Recorre tanto upstream (dependencies_of) como downstream (dependents_of).
+
+    Args:
+        graph: DependencyGraph.
+        start_name: Nombre del objeto de inicio.
+        depth: Saltos maximos (0 = solo el propio objeto).
+
+    Returns:
+        dict {name: (distance, direction)} donde direction es
+        "origin", "upstream", "downstream" o "both".
+    """
+    if start_name not in graph.nodes:
+        return {}
+
+    result = {start_name: (0, "origin")}
+    queue = deque([(start_name, 0)])
+
+    while queue:
+        node, dist = queue.popleft()
+        if dist >= depth:
+            continue
+
+        # Upstream: objetos de los que este depende
+        for neighbor in graph.dependencies_of(node):
+            new_dist = dist + 1
+            if neighbor not in result:
+                result[neighbor] = (new_dist, "upstream")
+                queue.append((neighbor, new_dist))
+            elif result[neighbor][0] > new_dist:
+                old_dir = result[neighbor][1]
+                new_dir = "both" if old_dir == "downstream" else old_dir
+                result[neighbor] = (new_dist, new_dir)
+                queue.append((neighbor, new_dist))
+
+        # Downstream: objetos que dependen de este
+        for neighbor in graph.dependents_of(node):
+            new_dist = dist + 1
+            if neighbor not in result:
+                result[neighbor] = (new_dist, "downstream")
+                queue.append((neighbor, new_dist))
+            elif result[neighbor][0] > new_dist:
+                old_dir = result[neighbor][1]
+                new_dir = "both" if old_dir == "upstream" else old_dir
+                result[neighbor] = (new_dist, new_dir)
+                queue.append((neighbor, new_dist))
+
+    return result
+
+
+def depth_from_node(graph, start_name):
+    """
+    Calcula la maxima profundidad alcanzable desde un nodo
+    (en ambas direcciones). Determina el max del slider de profundidad.
+
+    Args:
+        graph: DependencyGraph.
+        start_name: Nombre del objeto de inicio.
+
+    Returns:
+        int: Maxima distancia a cualquier nodo alcanzable.
+    """
+    if start_name not in graph.nodes:
+        return 0
+
+    max_dist = 0
+    visited = {start_name}
+    queue = deque([(start_name, 0)])
+
+    while queue:
+        node, dist = queue.popleft()
+        max_dist = max(max_dist, dist)
+        for neighbor in graph.dependencies_of(node) + graph.dependents_of(node):
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append((neighbor, dist + 1))
+
+    return max_dist
+
+
+def find_related_parameters(graph, params, selected_param_ids, depth):
+    """
+    Dado parametro(s) seleccionado(s), encuentra parametros relacionados
+    recorriendo el grafo de dependencias hasta depth saltos.
+
+    Args:
+        graph: DependencyGraph.
+        params: Lista de Parameter detectados.
+        selected_param_ids: Lista de IDs de parametros seleccionados.
+        depth: Numero de saltos en el grafo.
+
+    Returns:
+        list de tuplas (Parameter, distance, direction), ordenada por
+        distancia y luego por label. No incluye los parametros seleccionados.
+    """
+    # Mapeo: source_name -> [Parameter, ...]
+    source_to_params = defaultdict(list)
+    for p in params:
+        source_to_params[p.source_name].append(p)
+
+    # Encontrar source_names de los parametros seleccionados
+    selected_sources = set()
+    for p in params:
+        if p.id in selected_param_ids:
+            selected_sources.add(p.source_name)
+
+    # BFS desde cada source de los parametros seleccionados
+    merged = {}  # {obj_name: (min_distance, direction)}
+    for source in selected_sources:
+        related = find_related_objects(graph, source, depth)
+        for name, (dist, direction) in related.items():
+            if name not in merged or merged[name][0] > dist:
+                merged[name] = (dist, direction)
+
+    # Recoger parametros de los objetos encontrados, excluyendo los seleccionados
+    selected_set = set(selected_param_ids)
+    result = []
+    for obj_name, (dist, direction) in merged.items():
+        for p in source_to_params.get(obj_name, []):
+            if p.id not in selected_set:
+                result.append((p, dist, direction))
+
+    result.sort(key=lambda x: (x[1], x[0].label))
+    return result
 
 
 # ============================================================

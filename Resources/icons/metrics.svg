@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: LGPL-2.1-or-later -->
+<!-- SPDX-FileNotice: Part of the DesignProof addon. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <!-- Bar chart -->
   <rect x="8" y="36" width="12" height="24" fill="#FF9800" rx="2"/>

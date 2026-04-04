@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+# SPDX-FileNotice: Part of the DesignProof addon.
 """
 Analysis Dialog
 ===============
@@ -21,10 +23,14 @@ from core.report_generator import generate_report
 
 
 def run_analysis_dialog(ranges=None, params_map=None, mode="oat",
-                        n_samples=100, nominal_values=None):
+                        n_samples=100, nominal_values=None,
+                        live_view=False):
     """
     Main entry point: runs analysis with a progress dialog,
     then shows results.
+
+    Args:
+        live_view: If True, update 3D view after each variation (slower).
     """
     doc = App.ActiveDocument
     if doc is None:
@@ -76,6 +82,12 @@ def run_analysis_dialog(ranges=None, params_map=None, mode="oat",
             label += f" ({result.varied_param})"
         progress.setLabelText(label)
         QtGui.QApplication.processEvents()
+        if live_view:
+            Gui.updateGui()
+            try:
+                Gui.ActiveDocument.ActiveView.redraw()
+            except Exception:
+                pass
         if progress.wasCanceled():
             tester.cancel()
 

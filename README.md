@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: LGPL-2.1-or-later -->
+<!-- SPDX-FileNotice: Part of the DesignProof addon. -->
+
 # DesignProof - FreeCAD Workbench
 
 Proof-test your parametric CAD models before they reach the shop floor.
@@ -24,7 +27,7 @@ Restart FreeCAD. The workbench will appear in the workbench selector.
 
 ### Requirements
 
-- FreeCAD 0.21 or later
+- FreeCAD 1.0 or later
 - No external Python dependencies
 
 ## Screenshots
