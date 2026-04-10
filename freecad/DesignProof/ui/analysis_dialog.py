@@ -13,13 +13,22 @@ import FreeCADGui as Gui
 
 from PySide import QtCore, QtGui
 
-from core.parameter_detector import detect_parameters
-from core.variation_engine import (
-    ParameterRange, generate_variations, estimate_space_size
-)
-from core.recompute_tester import RobustnessTester
-from core.dependency_analyzer import analyze_dependencies
-from core.report_generator import generate_report
+try:
+    from ..core.parameter_detector import detect_parameters
+    from ..core.variation_engine import (
+        ParameterRange, generate_variations, estimate_space_size
+    )
+    from ..core.recompute_tester import RobustnessTester
+    from ..core.dependency_analyzer import analyze_dependencies
+    from ..core.report_generator import generate_report
+except ImportError:
+    from core.parameter_detector import detect_parameters
+    from core.variation_engine import (
+        ParameterRange, generate_variations, estimate_space_size
+    )
+    from core.recompute_tester import RobustnessTester
+    from core.dependency_analyzer import analyze_dependencies
+    from core.report_generator import generate_report
 
 
 def run_analysis_dialog(ranges=None, params_map=None, mode="oat",
@@ -102,10 +111,39 @@ def run_analysis_dialog(ranges=None, params_map=None, mode="oat",
     dep = analyze_dependencies(doc)
     metrics = dep["metrics"]
 
-    # Generate report files
-    model_dir = os.path.dirname(doc.FileName) if doc.FileName else "."
-    output_dir = os.path.join(model_dir, "results")
-    report = generate_report(results, params_map, output_dir, metrics)
+    # Generate report files. Prefer the model directory, but fall back to
+    # the user's FreeCAD data dir for read-only example files or protected
+    # locations such as Program Files.
+    model_dir = os.path.dirname(doc.FileName) if doc.FileName else ""
+    preferred_output_dir = os.path.join(model_dir, "results") if model_dir else ""
+
+    report = None
+    output_error = None
+
+    if preferred_output_dir:
+        try:
+            report = generate_report(
+                results, params_map, preferred_output_dir, metrics
+            )
+        except (PermissionError, OSError) as exc:
+            output_error = exc
+
+    if report is None:
+        model_name = (
+            os.path.splitext(os.path.basename(doc.FileName))[0]
+            if doc.FileName else "unsaved_document"
+        )
+        fallback_output_dir = os.path.join(
+            App.getUserAppDataDir(), "DesignProof", "results", model_name
+        )
+        report = generate_report(results, params_map, fallback_output_dir, metrics)
+
+        if output_error is not None:
+            App.Console.PrintWarning(
+                "[DesignProof] Could not write results to model directory: "
+                f"{output_error}\n"
+                f"[DesignProof] Results saved to: {fallback_output_dir}\n"
+            )
 
     # Show results dialog
     _show_results(results, params_map, metrics, report)

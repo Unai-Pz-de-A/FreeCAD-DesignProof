@@ -12,9 +12,14 @@ import FreeCADGui as Gui
 
 from PySide import QtCore, QtGui
 
-from core.dependency_analyzer import (
-    analyze_dependencies, build_graph
-)
+try:
+    from ..core.dependency_analyzer import (
+        analyze_dependencies, build_graph
+    )
+except ImportError:
+    from core.dependency_analyzer import (
+        analyze_dependencies, build_graph
+    )
 
 
 def show_metrics_dialog():

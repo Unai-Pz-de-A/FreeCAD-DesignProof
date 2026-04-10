@@ -13,11 +13,18 @@ import FreeCADGui as Gui
 
 from PySide import QtCore, QtGui
 
-from core.parameter_detector import detect_parameters
-from core.variation_engine import ParameterRange, estimate_space_size
-from core.dependency_analyzer import (
-    build_graph, find_related_parameters, depth_from_node,
-)
+try:
+    from ..core.parameter_detector import detect_parameters
+    from ..core.variation_engine import ParameterRange, estimate_space_size
+    from ..core.dependency_analyzer import (
+        build_graph, find_related_parameters, depth_from_node,
+    )
+except ImportError:
+    from core.parameter_detector import detect_parameters
+    from core.variation_engine import ParameterRange, estimate_space_size
+    from core.dependency_analyzer import (
+        build_graph, find_related_parameters, depth_from_node,
+    )
 
 
 class FocusedAnalysisPanel:
@@ -410,7 +417,10 @@ class FocusedAnalysisPanel:
 
         Gui.Control.closeDialog()
 
-        from ui.analysis_dialog import run_analysis_dialog
+        try:
+            from .analysis_dialog import run_analysis_dialog
+        except ImportError:
+            from ui.analysis_dialog import run_analysis_dialog
         run_analysis_dialog(
             ranges, self.params_map, mode,
             n_samples or 100, nominal_values,

@@ -19,12 +19,12 @@
   <tag>Quality</tag>
   <freecadmin>1.0.0</freecadmin>
   <pythonmin>3.10</pythonmin>
-  <icon>Resources/icons/workbench.svg</icon>
+  <icon>freecad/DesignProof/Resources/icons/workbench.svg</icon>
 
   <content>
     <workbench>
       <classname>DesignProofWorkbench</classname>
-      <subdirectory>.</subdirectory>
+      <subdirectory>freecad/DesignProof</subdirectory>
     </workbench>
   </content>
 </package>

@@ -14,8 +14,12 @@ import FreeCADGui as Gui
 
 from PySide import QtCore, QtGui
 
-from core.parameter_detector import detect_parameters
-from core.variation_engine import ParameterRange, estimate_space_size
+try:
+    from ..core.parameter_detector import detect_parameters
+    from ..core.variation_engine import ParameterRange, estimate_space_size
+except ImportError:
+    from core.parameter_detector import detect_parameters
+    from core.variation_engine import ParameterRange, estimate_space_size
 
 
 class ParameterPanel:
@@ -297,7 +301,10 @@ class ParameterPanel:
         Gui.Control.closeDialog()
 
         # Launch analysis
-        from ui.analysis_dialog import run_analysis_dialog
+        try:
+            from .analysis_dialog import run_analysis_dialog
+        except ImportError:
+            from ui.analysis_dialog import run_analysis_dialog
         params_map = {p.id: p for p in self.params}
         run_analysis_dialog(ranges, params_map, mode, n_samples, nominal_values)
         return True

@@ -4,18 +4,16 @@
 FreeCAD Commands
 ================
 Defines the GUI commands for the DesignProof workbench.
-Each command is registered in InitGui.py.
+Each command is registered in init_gui.py.
 """
 
 import os
 import FreeCAD as App
 import FreeCADGui as Gui
 
-try:
-    WB_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-except NameError:
-    WB_DIR = os.path.join(App.getUserAppDataDir(), "Mod", "DesignProof")
-ICON_DIR = os.path.join(WB_DIR, "Resources", "icons")
+ICON_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), "Resources", "icons"
+)
 
 
 class CmdDetectParameters:
@@ -32,7 +30,10 @@ class CmdDetectParameters:
         return App.ActiveDocument is not None
 
     def Activated(self):
-        from ui.param_panel import ParameterPanel
+        try:
+            from .param_panel import ParameterPanel
+        except ImportError:
+            from ui.param_panel import ParameterPanel
         panel = ParameterPanel()
         Gui.Control.showDialog(panel)
 
@@ -51,7 +52,10 @@ class CmdRunAnalysis:
         return App.ActiveDocument is not None
 
     def Activated(self):
-        from ui.analysis_dialog import run_analysis_dialog
+        try:
+            from .analysis_dialog import run_analysis_dialog
+        except ImportError:
+            from ui.analysis_dialog import run_analysis_dialog
         run_analysis_dialog()
 
 
@@ -69,7 +73,10 @@ class CmdModelMetrics:
         return App.ActiveDocument is not None
 
     def Activated(self):
-        from ui.metrics_dialog import show_metrics_dialog
+        try:
+            from .metrics_dialog import show_metrics_dialog
+        except ImportError:
+            from ui.metrics_dialog import show_metrics_dialog
         show_metrics_dialog()
 
 
@@ -87,6 +94,9 @@ class CmdFocusedAnalysis:
         return App.ActiveDocument is not None
 
     def Activated(self):
-        from ui.focused_panel import FocusedAnalysisPanel
+        try:
+            from .focused_panel import FocusedAnalysisPanel
+        except ImportError:
+            from ui.focused_panel import FocusedAnalysisPanel
         panel = FocusedAnalysisPanel()
         Gui.Control.showDialog(panel)
