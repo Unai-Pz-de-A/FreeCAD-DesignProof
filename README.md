@@ -158,7 +158,7 @@ All ideas are welcome -- open an [issue](https://github.com/Unai-Pz-de-A/FreeCAD
 
 This work is based on the methodology described in:
 
-- Aranburu, A., Cotillas, M., Justel, D., Contero, M., & Camba, J. D. (2022). *"How Does the Modeling Strategy Influence Design Optimization and the Automatic Generation of Parametric Geometry Variations?"* Computer-Aided Design, 151, 1-13. [DOI: 10.1016/j.cad.2022.103345](https://doi.org/10.1016/j.cad.2022.103345)
+- Aranburu, A., Cotillas, M., Justel, D., Contero, M., & Camba, J. D. (2022). *"How Does the Modeling Strategy Influence Design Optimization and the Automatic Generation of Parametric Geometry Variations?"* Computer-Aided Design, 151, 1-13. [DOI: 10.1016/j.cad.2022.103345]([https://doi.org/10.1016/j.cad.2022.103345](https://riunet.upv.es/server/api/core/bitstreams/93f6b767-0d4e-4d74-9db9-4816f23261a4/content))
 
 - Otto, H. E., & Mandorli, F. (2024). *"Data-Driven Assessment of Parametric Robustness of CAD Models."* Proceedings of CAD'24, Eger, Hungary.
 
