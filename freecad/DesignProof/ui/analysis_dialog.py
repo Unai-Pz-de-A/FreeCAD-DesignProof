@@ -11,24 +11,15 @@ import os
 import FreeCAD as App
 import FreeCADGui as Gui
 
-from PySide import QtCore, QtGui
+from PySide6 import QtCore, QtGui, QtWidgets
 
-try:
-    from ..core.parameter_detector import detect_parameters
-    from ..core.variation_engine import (
-        ParameterRange, generate_variations, estimate_space_size
-    )
-    from ..core.recompute_tester import RobustnessTester
-    from ..core.dependency_analyzer import analyze_dependencies
-    from ..core.report_generator import generate_report
-except ImportError:
-    from core.parameter_detector import detect_parameters
-    from core.variation_engine import (
-        ParameterRange, generate_variations, estimate_space_size
-    )
-    from core.recompute_tester import RobustnessTester
-    from core.dependency_analyzer import analyze_dependencies
-    from core.report_generator import generate_report
+from ..core.parameter_detector import detect_parameters
+from ..core.variation_engine import (
+    ParameterRange, generate_variations, estimate_space_size
+)
+from ..core.recompute_tester import RobustnessTester
+from ..core.dependency_analyzer import analyze_dependencies
+from ..core.report_generator import generate_report
 
 
 def run_analysis_dialog(ranges=None, params_map=None, mode="oat",
@@ -43,14 +34,14 @@ def run_analysis_dialog(ranges=None, params_map=None, mode="oat",
     """
     doc = App.ActiveDocument
     if doc is None:
-        QtGui.QMessageBox.warning(None, "Error", "No active document.")
+        QtWidgets.QMessageBox.warning(None, "Error", "No active document.")
         return
 
     # If called directly (not from param_panel), auto-detect everything
     if ranges is None:
         params = detect_parameters(doc)
         if not params:
-            QtGui.QMessageBox.warning(None, "Error", "No parameters found.")
+            QtWidgets.QMessageBox.warning(None, "Error", "No parameters found.")
             return
         params_map = {p.id: p for p in params}
         ranges = []
@@ -71,7 +62,7 @@ def run_analysis_dialog(ranges=None, params_map=None, mode="oat",
                                      nominal_values=nominal_values)
 
     # Progress dialog
-    progress = QtGui.QProgressDialog(
+    progress = QtWidgets.QProgressDialog(
         "Running robustness analysis...", "Cancel", 0, len(variations)
     )
     progress.setWindowTitle("Robustness Analysis")
@@ -90,7 +81,7 @@ def run_analysis_dialog(ranges=None, params_map=None, mode="oat",
         if result.varied_param:
             label += f" ({result.varied_param})"
         progress.setLabelText(label)
-        QtGui.QApplication.processEvents()
+        QtWidgets.QApplication.processEvents()
         if live_view:
             Gui.updateGui()
             try:
@@ -104,7 +95,7 @@ def run_analysis_dialog(ranges=None, params_map=None, mode="oat",
     progress.close()
 
     if not results:
-        QtGui.QMessageBox.information(None, "Cancelled", "Analysis was cancelled.")
+        QtWidgets.QMessageBox.information(None, "Cancelled", "Analysis was cancelled.")
         return
 
     # Compute metrics
@@ -168,10 +159,10 @@ def _show_results(results, params_map, metrics, report):
     else:
         rating, color = "CRITICAL", "#B71C1C"
 
-    dlg = QtGui.QDialog(Gui.getMainWindow())
+    dlg = QtWidgets.QDialog(Gui.getMainWindow())
     dlg.setWindowTitle("Robustness Analysis Results")
     dlg.setMinimumSize(800, 600)
-    layout = QtGui.QVBoxLayout(dlg)
+    layout = QtWidgets.QVBoxLayout(dlg)
 
     # Summary header
     summary_html = f"""
@@ -181,19 +172,19 @@ def _show_results(results, params_map, metrics, report):
         <p>Passed: {passed} | Failed: {failed} | Warnings: {warnings} | Total: {total}</p>
     </div>
     """
-    summary_label = QtGui.QLabel(summary_html)
+    summary_label = QtWidgets.QLabel(summary_html)
     summary_label.setAlignment(QtCore.Qt.AlignCenter)
     layout.addWidget(summary_label)
 
     # Tabs for details
-    tabs = QtGui.QTabWidget()
+    tabs = QtWidgets.QTabWidget()
     layout.addWidget(tabs)
 
     # Tab 1: Results table
-    results_tab = QtGui.QWidget()
-    results_layout = QtGui.QVBoxLayout(results_tab)
+    results_tab = QtWidgets.QWidget()
+    results_layout = QtWidgets.QVBoxLayout(results_tab)
 
-    results_table = QtGui.QTableWidget()
+    results_table = QtWidgets.QTableWidget()
     results_table.setRowCount(len(results))
     results_table.setColumnCount(5)
     results_table.setHorizontalHeaderLabels([
@@ -203,9 +194,9 @@ def _show_results(results, params_map, metrics, report):
     results_table.horizontalHeader().setStretchLastSection(True)
 
     for i, r in enumerate(results):
-        results_table.setItem(i, 0, QtGui.QTableWidgetItem(str(r.index)))
+        results_table.setItem(i, 0, QtWidgets.QTableWidgetItem(str(r.index)))
 
-        status_item = QtGui.QTableWidgetItem(r.status)
+        status_item = QtWidgets.QTableWidgetItem(r.status)
         if r.status == "PASS":
             status_item.setBackground(QtGui.QColor(200, 255, 200))
         elif r.status == "FAIL":
@@ -215,19 +206,19 @@ def _show_results(results, params_map, metrics, report):
         results_table.setItem(i, 1, status_item)
 
         varied = r.varied_param or "(nominal)"
-        results_table.setItem(i, 2, QtGui.QTableWidgetItem(varied))
-        results_table.setItem(i, 3, QtGui.QTableWidgetItem(f"{r.volume:.0f}"))
+        results_table.setItem(i, 2, QtWidgets.QTableWidgetItem(varied))
+        results_table.setItem(i, 3, QtWidgets.QTableWidgetItem(f"{r.volume:.0f}"))
 
         feats = ", ".join(n for n, _ in r.failed_features)
-        results_table.setItem(i, 4, QtGui.QTableWidgetItem(feats))
+        results_table.setItem(i, 4, QtWidgets.QTableWidgetItem(feats))
 
     results_table.resizeColumnsToContents()
     results_layout.addWidget(results_table)
     tabs.addTab(results_tab, "Variations")
 
     # Tab 2: Failure analysis
-    fail_tab = QtGui.QWidget()
-    fail_layout = QtGui.QVBoxLayout(fail_tab)
+    fail_tab = QtWidgets.QWidget()
+    fail_layout = QtWidgets.QVBoxLayout(fail_tab)
 
     # Parameters causing failures
     param_fails = {}
@@ -241,8 +232,8 @@ def _show_results(results, params_map, metrics, report):
             feature_fails[feat] = feature_fails.get(feat, 0) + 1
 
     if param_fails:
-        fail_layout.addWidget(QtGui.QLabel("<b>Parameters causing failures:</b>"))
-        pf_table = QtGui.QTableWidget()
+        fail_layout.addWidget(QtWidgets.QLabel("<b>Parameters causing failures:</b>"))
+        pf_table = QtWidgets.QTableWidget()
         pf_table.setRowCount(len(param_fails))
         pf_table.setColumnCount(3)
         pf_table.setHorizontalHeaderLabels(["Parameter", "Failures", "% of fails"])
@@ -251,17 +242,17 @@ def _show_results(results, params_map, metrics, report):
             sorted(param_fails.items(), key=lambda x: x[1], reverse=True)
         ):
             label = params_map[pid].label if pid in params_map else pid
-            pf_table.setItem(i, 0, QtGui.QTableWidgetItem(label))
-            pf_table.setItem(i, 1, QtGui.QTableWidgetItem(str(count)))
-            pf_table.setItem(i, 2, QtGui.QTableWidgetItem(
+            pf_table.setItem(i, 0, QtWidgets.QTableWidgetItem(label))
+            pf_table.setItem(i, 1, QtWidgets.QTableWidgetItem(str(count)))
+            pf_table.setItem(i, 2, QtWidgets.QTableWidgetItem(
                 f"{count/failed*100:.0f}%" if failed > 0 else "0%"
             ))
         pf_table.resizeColumnsToContents()
         fail_layout.addWidget(pf_table)
 
     if feature_fails:
-        fail_layout.addWidget(QtGui.QLabel("<b>Features that fail:</b>"))
-        ff_table = QtGui.QTableWidget()
+        fail_layout.addWidget(QtWidgets.QLabel("<b>Features that fail:</b>"))
+        ff_table = QtWidgets.QTableWidget()
         ff_table.setRowCount(len(feature_fails))
         ff_table.setColumnCount(2)
         ff_table.setHorizontalHeaderLabels(["Feature", "Failure count"])
@@ -269,42 +260,42 @@ def _show_results(results, params_map, metrics, report):
         for i, (feat, count) in enumerate(
             sorted(feature_fails.items(), key=lambda x: x[1], reverse=True)
         ):
-            ff_table.setItem(i, 0, QtGui.QTableWidgetItem(feat))
-            ff_table.setItem(i, 1, QtGui.QTableWidgetItem(str(count)))
+            ff_table.setItem(i, 0, QtWidgets.QTableWidgetItem(feat))
+            ff_table.setItem(i, 1, QtWidgets.QTableWidgetItem(str(count)))
         ff_table.resizeColumnsToContents()
         fail_layout.addWidget(ff_table)
 
     if not param_fails and not feature_fails:
-        fail_layout.addWidget(QtGui.QLabel("No failures detected."))
+        fail_layout.addWidget(QtWidgets.QLabel("No failures detected."))
 
     tabs.addTab(fail_tab, "Failure Analysis")
 
     # Tab 3: Metrics
-    metrics_tab = QtGui.QWidget()
-    metrics_layout = QtGui.QVBoxLayout(metrics_tab)
-    metrics_table = QtGui.QTableWidget()
+    metrics_tab = QtWidgets.QWidget()
+    metrics_layout = QtWidgets.QVBoxLayout(metrics_tab)
+    metrics_table = QtWidgets.QTableWidget()
     metrics_table.setRowCount(len(metrics))
     metrics_table.setColumnCount(2)
     metrics_table.setHorizontalHeaderLabels(["Metric", "Value"])
     metrics_table.horizontalHeader().setStretchLastSection(True)
     for i, (key, val) in enumerate(metrics.items()):
         label = key.replace("_", " ").title()
-        metrics_table.setItem(i, 0, QtGui.QTableWidgetItem(label))
-        metrics_table.setItem(i, 1, QtGui.QTableWidgetItem(str(val)))
+        metrics_table.setItem(i, 0, QtWidgets.QTableWidgetItem(label))
+        metrics_table.setItem(i, 1, QtWidgets.QTableWidgetItem(str(val)))
     metrics_table.resizeColumnsToContents()
     metrics_layout.addWidget(metrics_table)
     tabs.addTab(metrics_tab, "Model Metrics")
 
     # Bottom buttons
-    btn_layout = QtGui.QHBoxLayout()
+    btn_layout = QtWidgets.QHBoxLayout()
     csv_path = report.get("csv", "")
-    open_csv_btn = QtGui.QPushButton(f"Open CSV ({os.path.basename(csv_path)})")
+    open_csv_btn = QtWidgets.QPushButton(f"Open CSV ({os.path.basename(csv_path)})")
     open_csv_btn.clicked.connect(lambda: os.startfile(csv_path) if csv_path else None)
     btn_layout.addWidget(open_csv_btn)
 
-    close_btn = QtGui.QPushButton("Close")
+    close_btn = QtWidgets.QPushButton("Close")
     close_btn.clicked.connect(dlg.close)
     btn_layout.addWidget(close_btn)
     layout.addLayout(btn_layout)
 
-    dlg.exec_()
+    dlg.exec()

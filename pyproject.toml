@@ -1,14 +1,11 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
-# Development-only configuration for IDE autocompletion.
-# DesignProof has no runtime dependencies beyond FreeCAD.
+# SPDX-FileNotice: Part of the DesignProof addon.
 
 [project]
-name = "DesignProof"
-version = "0.1.1"
-description = "FreeCAD workbench for parametric robustness testing"
-requires-python = ">=3.10"
-
-[project.optional-dependencies]
-dev = [
-    "freecad-stubs",
+version = '0.0.0' # No need to update
+name = 'Addon'    # these two properties.
+requires-python = '>=3.11'
+dependencies = [
+    'freecad-stubs>=1.0.21',
+    'pyside6>=6.11.0',
 ]

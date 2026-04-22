@@ -1,54 +1,44 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 # SPDX-FileNotice: Part of the DesignProof addon.
 
-import os
-
 import FreeCADGui as Gui
+
+from .resources import asIcon
 
 
 class DesignProofWorkbench(Gui.Workbench):
     MenuText = "DesignProof"
     ToolTip = "Proof-test your parametric CAD models"
-    Icon = os.path.join(
-        os.path.dirname(__file__), "Resources", "icons", "workbench.svg"
-    )
+    Icon = asIcon("workbench")
 
     def Initialize(self):
         try:
-            try:
-                from .ui.commands import (
-                    CmdDetectParameters,
-                    CmdFocusedAnalysis,
-                    CmdModelMetrics,
-                    CmdRunAnalysis,
-                )
-            except ImportError:
-                from ui.commands import (
-                    CmdDetectParameters,
-                    CmdFocusedAnalysis,
-                    CmdModelMetrics,
-                    CmdRunAnalysis,
-                )
+            from .ui.commands import (
+                CmdDetectParameters,
+                CmdFocusedAnalysis,
+                CmdModelMetrics,
+                CmdRunAnalysis,
+            )
 
-            Gui.addCommand("DP_DetectParameters", CmdDetectParameters())
-            Gui.addCommand("DP_RunAnalysis", CmdRunAnalysis())
-            Gui.addCommand("DP_FocusedAnalysis", CmdFocusedAnalysis())
-            Gui.addCommand("DP_ModelMetrics", CmdModelMetrics())
+            Gui.addCommand("DesignProof_DetectParameters", CmdDetectParameters())
+            Gui.addCommand("DesignProof_RunAnalysis", CmdRunAnalysis())
+            Gui.addCommand("DesignProof_FocusedAnalysis", CmdFocusedAnalysis())
+            Gui.addCommand("DesignProof_ModelMetrics", CmdModelMetrics())
 
             self.appendToolbar("DesignProof", [
-                "DP_DetectParameters",
-                "DP_RunAnalysis",
-                "DP_FocusedAnalysis",
+                "DesignProof_DetectParameters",
+                "DesignProof_RunAnalysis",
+                "DesignProof_FocusedAnalysis",
                 "Separator",
-                "DP_ModelMetrics",
+                "DesignProof_ModelMetrics",
             ])
 
             self.appendMenu("DesignProof", [
-                "DP_DetectParameters",
-                "DP_RunAnalysis",
-                "DP_FocusedAnalysis",
+                "DesignProof_DetectParameters",
+                "DesignProof_RunAnalysis",
+                "DesignProof_FocusedAnalysis",
                 "Separator",
-                "DP_ModelMetrics",
+                "DesignProof_ModelMetrics",
             ])
         except Exception as exc:
             import FreeCAD as App

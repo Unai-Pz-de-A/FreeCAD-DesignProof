@@ -12,14 +12,10 @@ import json
 import FreeCAD as App
 import FreeCADGui as Gui
 
-from PySide import QtCore, QtGui
+from PySide6 import QtCore, QtGui, QtWidgets
 
-try:
-    from ..core.parameter_detector import detect_parameters
-    from ..core.variation_engine import ParameterRange, estimate_space_size
-except ImportError:
-    from core.parameter_detector import detect_parameters
-    from core.variation_engine import ParameterRange, estimate_space_size
+from ..core.parameter_detector import detect_parameters
+from ..core.variation_engine import ParameterRange, estimate_space_size
 
 
 class ParameterPanel:
@@ -27,43 +23,43 @@ class ParameterPanel:
 
     def __init__(self):
         self.params = []
-        self.form = QtGui.QWidget()
+        self.form = QtWidgets.QWidget()
         self.form.setWindowTitle("Robustness Analyzer - Parameters")
         self._build_ui()
         self._detect_and_populate()
 
     def _build_ui(self):
-        layout = QtGui.QVBoxLayout(self.form)
+        layout = QtWidgets.QVBoxLayout(self.form)
 
         # Info label
-        self.info_label = QtGui.QLabel("Scanning model for parameters...")
+        self.info_label = QtWidgets.QLabel("Scanning model for parameters...")
         layout.addWidget(self.info_label)
 
         # Parameter table
-        self.table = QtGui.QTableWidget()
+        self.table = QtWidgets.QTableWidget()
         self.table.setColumnCount(6)
         self.table.setHorizontalHeaderLabels([
             "Include", "Parameter", "Current", "Min", "Max", "Steps"
         ])
         header = self.table.horizontalHeader()
         header.setStretchLastSection(True)
-        header.setSectionResizeMode(1, QtGui.QHeaderView.Stretch)
+        header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
         self.table.setAlternatingRowColors(True)
         layout.addWidget(self.table)
 
         # Mode selector
-        mode_layout = QtGui.QHBoxLayout()
-        mode_layout.addWidget(QtGui.QLabel("Mode:"))
-        self.mode_combo = QtGui.QComboBox()
+        mode_layout = QtWidgets.QHBoxLayout()
+        mode_layout.addWidget(QtWidgets.QLabel("Mode:"))
+        self.mode_combo = QtWidgets.QComboBox()
         self.mode_combo.addItems(["OAT (One-at-a-Time)", "Full Factorial", "Random Sampling"])
         self.mode_combo.currentIndexChanged.connect(self._update_estimate)
         mode_layout.addWidget(self.mode_combo)
         layout.addLayout(mode_layout)
 
         # Random samples spinbox (only visible in random mode)
-        self.samples_layout = QtGui.QHBoxLayout()
-        self.samples_layout.addWidget(QtGui.QLabel("Samples:"))
-        self.samples_spin = QtGui.QSpinBox()
+        self.samples_layout = QtWidgets.QHBoxLayout()
+        self.samples_layout.addWidget(QtWidgets.QLabel("Samples:"))
+        self.samples_spin = QtWidgets.QSpinBox()
         self.samples_spin.setRange(10, 10000)
         self.samples_spin.setValue(100)
         self.samples_spin.valueChanged.connect(self._update_estimate)
@@ -71,24 +67,24 @@ class ParameterPanel:
         layout.addLayout(self.samples_layout)
 
         # Estimate label
-        self.estimate_label = QtGui.QLabel("")
+        self.estimate_label = QtWidgets.QLabel("")
         self.estimate_label.setStyleSheet("font-weight: bold; color: #333;")
         layout.addWidget(self.estimate_label)
 
         # Margin preset buttons
-        preset_layout = QtGui.QHBoxLayout()
-        preset_layout.addWidget(QtGui.QLabel("Range preset:"))
+        preset_layout = QtWidgets.QHBoxLayout()
+        preset_layout.addWidget(QtWidgets.QLabel("Range preset:"))
         for pct in [10, 20, 30, 50]:
-            btn = QtGui.QPushButton(f"+/-{pct}%")
+            btn = QtWidgets.QPushButton(f"+/-{pct}%")
             btn.clicked.connect(lambda checked, p=pct: self._apply_margin(p))
             preset_layout.addWidget(btn)
         layout.addLayout(preset_layout)
 
         # Save/Load config
-        config_layout = QtGui.QHBoxLayout()
-        self.save_btn = QtGui.QPushButton("Save Config")
+        config_layout = QtWidgets.QHBoxLayout()
+        self.save_btn = QtWidgets.QPushButton("Save Config")
         self.save_btn.clicked.connect(self._save_config)
-        self.load_btn = QtGui.QPushButton("Load Config")
+        self.load_btn = QtWidgets.QPushButton("Load Config")
         self.load_btn.clicked.connect(self._load_config)
         config_layout.addWidget(self.save_btn)
         config_layout.addWidget(self.load_btn)
@@ -115,18 +111,18 @@ class ParameterPanel:
         self.table.setRowCount(len(self.params))
         for i, p in enumerate(self.params):
             # Checkbox
-            cb = QtGui.QCheckBox()
+            cb = QtWidgets.QCheckBox()
             cb.setChecked(True)
             cb.stateChanged.connect(self._update_estimate)
             self.table.setCellWidget(i, 0, cb)
 
             # Parameter label
-            label_item = QtGui.QTableWidgetItem(p.label)
+            label_item = QtWidgets.QTableWidgetItem(p.label)
             label_item.setFlags(label_item.flags() & ~QtCore.Qt.ItemIsEditable)
             self.table.setItem(i, 1, label_item)
 
             # Current value
-            current_item = QtGui.QTableWidgetItem(f"{p.value:.2f}")
+            current_item = QtWidgets.QTableWidgetItem(f"{p.value:.2f}")
             current_item.setFlags(current_item.flags() & ~QtCore.Qt.ItemIsEditable)
             current_item.setBackground(QtGui.QColor(240, 240, 240))
             self.table.setItem(i, 2, current_item)
@@ -134,14 +130,14 @@ class ParameterPanel:
             # Min (editable)
             margin = max(p.value * 0.3, 1.0)
             min_val = max(0.1, p.value - margin)
-            self.table.setItem(i, 3, QtGui.QTableWidgetItem(f"{min_val:.2f}"))
+            self.table.setItem(i, 3, QtWidgets.QTableWidgetItem(f"{min_val:.2f}"))
 
             # Max (editable)
             max_val = p.value + margin
-            self.table.setItem(i, 4, QtGui.QTableWidgetItem(f"{max_val:.2f}"))
+            self.table.setItem(i, 4, QtWidgets.QTableWidgetItem(f"{max_val:.2f}"))
 
             # Steps
-            self.table.setItem(i, 5, QtGui.QTableWidgetItem("5"))
+            self.table.setItem(i, 5, QtWidgets.QTableWidgetItem("5"))
 
         self.table.resizeColumnsToContents()
         self._update_estimate()
@@ -277,7 +273,7 @@ class ParameterPanel:
         """Called when OK is pressed. Launches analysis."""
         ranges = self._get_selected_ranges()
         if not ranges:
-            QtGui.QMessageBox.warning(
+            QtWidgets.QMessageBox.warning(
                 self.form, "No Parameters",
                 "Select at least one parameter with valid ranges."
             )
@@ -301,10 +297,7 @@ class ParameterPanel:
         Gui.Control.closeDialog()
 
         # Launch analysis
-        try:
-            from .analysis_dialog import run_analysis_dialog
-        except ImportError:
-            from ui.analysis_dialog import run_analysis_dialog
+        from .analysis_dialog import run_analysis_dialog
         params_map = {p.id: p for p in self.params}
         run_analysis_dialog(ranges, params_map, mode, n_samples, nominal_values)
         return True
@@ -315,4 +308,4 @@ class ParameterPanel:
         return True
 
     def getStandardButtons(self):
-        return int(QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel)
+        return int(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)

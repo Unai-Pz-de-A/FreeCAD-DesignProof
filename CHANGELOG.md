@@ -7,6 +7,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2026-04-22
+
+### Changed
+
+- **Breaking**: Minimum FreeCAD raised to 1.1.0 (Qt6) and minimum Python to 3.11. FreeCAD 1.0.x is no longer supported.
+- Migrated GUI from `PySide` to `PySide6`. Qt widgets now live under `QtWidgets` (e.g. `QtWidgets.QDialog` instead of `QtGui.QDialog`).
+- Commands renamed to match the addon prefix convention: `DP_*` -> `DesignProof_*` (`DesignProof_DetectParameters`, `DesignProof_RunAnalysis`, `DesignProof_FocusedAnalysis`, `DesignProof_ModelMetrics`).
+- Icons and other runtime assets are now loaded via `importlib.resources`, replacing `os.path.join(__file__, ...)` lookups.
+- `pyproject.toml` reduced to the upstream Addon Academy stub; PySide6 declared as a dev dependency, `freecad-stubs` version pin removed.
+- Screenshots used only in documentation moved from `freecad/DesignProof/Resources/screenshots/` to a top-level `Resources/screenshots/` directory; runtime icons stay under `freecad/DesignProof/Resources/icons/`.
+- `CONTRIBUTING.md` moved to `.github/CONTRIBUTING.md`.
+
+### Removed
+
+- Unused `freecad/DesignProof/init.py` stub.
+- Workflow demo GIF is no longer committed to the repository; it is distributed as an asset of the v0.1.2 GitHub release.
+
 ## [0.1.1] - 2026-04-04
 
 ### Changed
@@ -33,5 +50,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Headless mode support via FreeCADcmd for batch processing.
 - Validated on 5 models (PartDesign and Part workbench) with FreeCAD 1.0.2.
 
+[0.1.2]: https://github.com/Unai-Pz-de-A/FreeCAD-DesignProof/releases/tag/v0.1.2
 [0.1.1]: https://github.com/Unai-Pz-de-A/FreeCAD-DesignProof/releases/tag/v0.1.1
 [0.1.0]: https://github.com/Unai-Pz-de-A/FreeCAD-DesignProof/releases/tag/v0.1.0

@@ -4,8 +4,8 @@
 <package format="1" xmlns="https://wiki.freecad.org/Package_Metadata">
   <name>DesignProof</name>
   <description>Proof-test your parametric CAD models by systematically varying dimensions and measuring regeneration success rates.</description>
-  <version>0.1.1</version>
-  <date>2026-04-04</date>
+  <version>0.1.2</version>
+  <date>2026-04-22</date>
   <author email="info@unai3d.com">Unai-Pz-de-A</author>
   <maintainer email="info@unai3d.com">Unai-Pz-de-A</maintainer>
   <license file="LICENSE">LGPL-2.1-or-later</license>
@@ -17,8 +17,8 @@
   <tag>Robustness</tag>
   <tag>Testing</tag>
   <tag>Quality</tag>
-  <freecadmin>1.0.0</freecadmin>
-  <pythonmin>3.10</pythonmin>
+  <freecadmin>1.1.0</freecadmin>
+  <pythonmin>3.11</pythonmin>
   <icon>freecad/DesignProof/Resources/icons/workbench.svg</icon>
 
   <content>

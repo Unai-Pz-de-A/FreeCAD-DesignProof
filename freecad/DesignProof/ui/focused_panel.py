@@ -11,20 +11,13 @@ depth, variation %, and steps with sliders.
 import FreeCAD as App
 import FreeCADGui as Gui
 
-from PySide import QtCore, QtGui
+from PySide6 import QtCore, QtGui, QtWidgets
 
-try:
-    from ..core.parameter_detector import detect_parameters
-    from ..core.variation_engine import ParameterRange, estimate_space_size
-    from ..core.dependency_analyzer import (
-        build_graph, find_related_parameters, depth_from_node,
-    )
-except ImportError:
-    from core.parameter_detector import detect_parameters
-    from core.variation_engine import ParameterRange, estimate_space_size
-    from core.dependency_analyzer import (
-        build_graph, find_related_parameters, depth_from_node,
-    )
+from ..core.parameter_detector import detect_parameters
+from ..core.variation_engine import ParameterRange, estimate_space_size
+from ..core.dependency_analyzer import (
+    build_graph, find_related_parameters, depth_from_node,
+)
 
 
 class FocusedAnalysisPanel:
@@ -36,7 +29,7 @@ class FocusedAnalysisPanel:
         self.graph = None
         self._related = []  # [(Parameter, distance, direction), ...]
 
-        self.form = QtGui.QWidget()
+        self.form = QtWidgets.QWidget()
         self.form.setWindowTitle("Focused Analysis")
         self._detect_data()
         self._build_ui()
@@ -56,66 +49,66 @@ class FocusedAnalysisPanel:
     # ================================================================
 
     def _build_ui(self):
-        layout = QtGui.QVBoxLayout(self.form)
+        layout = QtWidgets.QVBoxLayout(self.form)
 
         # Info label
-        self.info_label = QtGui.QLabel("Select key parameter(s) for focused analysis:")
+        self.info_label = QtWidgets.QLabel("Select key parameter(s) for focused analysis:")
         layout.addWidget(self.info_label)
 
         # --- Key parameter selection table ---
-        self.key_table = QtGui.QTableWidget()
+        self.key_table = QtWidgets.QTableWidget()
         self.key_table.setColumnCount(4)
         self.key_table.setHorizontalHeaderLabels(
             ["Include", "Parameter", "Value", "Source"]
         )
         self.key_table.horizontalHeader().setStretchLastSection(True)
-        self.key_table.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
+        self.key_table.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
         self.key_table.verticalHeader().setVisible(False)
         layout.addWidget(self.key_table)
 
         # --- Analysis Controls ---
-        controls_group = QtGui.QGroupBox("Analysis Controls")
-        controls_layout = QtGui.QVBoxLayout()
+        controls_group = QtWidgets.QGroupBox("Analysis Controls")
+        controls_layout = QtWidgets.QVBoxLayout()
 
         # Depth slider
-        depth_row = QtGui.QHBoxLayout()
-        depth_row.addWidget(QtGui.QLabel("Depth:"))
-        self.depth_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        depth_row = QtWidgets.QHBoxLayout()
+        depth_row.addWidget(QtWidgets.QLabel("Depth:"))
+        self.depth_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         self.depth_slider.setRange(0, 0)
         self.depth_slider.setValue(0)
-        self.depth_slider.setTickPosition(QtGui.QSlider.TicksBelow)
+        self.depth_slider.setTickPosition(QtWidgets.QSlider.TicksBelow)
         self.depth_slider.setTickInterval(1)
         depth_row.addWidget(self.depth_slider)
-        self.depth_label = QtGui.QLabel("[0]")
+        self.depth_label = QtWidgets.QLabel("[0]")
         self.depth_label.setMinimumWidth(30)
         depth_row.addWidget(self.depth_label)
         controls_layout.addLayout(depth_row)
 
         # Variation slider
-        var_row = QtGui.QHBoxLayout()
-        var_row.addWidget(QtGui.QLabel("Variation:"))
-        self.var_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        var_row = QtWidgets.QHBoxLayout()
+        var_row.addWidget(QtWidgets.QLabel("Variation:"))
+        self.var_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         self.var_slider.setRange(5, 50)
         self.var_slider.setValue(30)
         self.var_slider.setSingleStep(5)
-        self.var_slider.setTickPosition(QtGui.QSlider.TicksBelow)
+        self.var_slider.setTickPosition(QtWidgets.QSlider.TicksBelow)
         self.var_slider.setTickInterval(5)
         var_row.addWidget(self.var_slider)
-        self.var_label = QtGui.QLabel("[±30%]")
+        self.var_label = QtWidgets.QLabel("[±30%]")
         self.var_label.setMinimumWidth(50)
         var_row.addWidget(self.var_label)
         controls_layout.addLayout(var_row)
 
         # Steps slider
-        steps_row = QtGui.QHBoxLayout()
-        steps_row.addWidget(QtGui.QLabel("Steps:"))
-        self.steps_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        steps_row = QtWidgets.QHBoxLayout()
+        steps_row.addWidget(QtWidgets.QLabel("Steps:"))
+        self.steps_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         self.steps_slider.setRange(3, 10)
         self.steps_slider.setValue(5)
-        self.steps_slider.setTickPosition(QtGui.QSlider.TicksBelow)
+        self.steps_slider.setTickPosition(QtWidgets.QSlider.TicksBelow)
         self.steps_slider.setTickInterval(1)
         steps_row.addWidget(self.steps_slider)
-        self.steps_label = QtGui.QLabel("[5]")
+        self.steps_label = QtWidgets.QLabel("[5]")
         self.steps_label.setMinimumWidth(30)
         steps_row.addWidget(self.steps_label)
         controls_layout.addLayout(steps_row)
@@ -124,31 +117,31 @@ class FocusedAnalysisPanel:
         layout.addWidget(controls_group)
 
         # --- Related parameters ---
-        self.related_group = QtGui.QGroupBox("Related Parameters Found (0)")
-        related_layout = QtGui.QVBoxLayout()
+        self.related_group = QtWidgets.QGroupBox("Related Parameters Found (0)")
+        related_layout = QtWidgets.QVBoxLayout()
 
-        self.related_table = QtGui.QTableWidget()
+        self.related_table = QtWidgets.QTableWidget()
         self.related_table.setColumnCount(4)
         self.related_table.setHorizontalHeaderLabels(
             ["Parameter", "Value", "Depth", "Direction"]
         )
         self.related_table.horizontalHeader().setStretchLastSection(True)
-        self.related_table.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
+        self.related_table.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
         self.related_table.verticalHeader().setVisible(False)
         self.related_table.setMaximumHeight(150)
-        self.related_table.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.related_table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 
         related_layout.addWidget(self.related_table)
         self.related_group.setLayout(related_layout)
         layout.addWidget(self.related_group)
 
         # --- Live view checkbox ---
-        self.live_view_cb = QtGui.QCheckBox("Update 3D view during analysis (slower)")
+        self.live_view_cb = QtWidgets.QCheckBox("Update 3D view during analysis (slower)")
         self.live_view_cb.setChecked(False)
         layout.addWidget(self.live_view_cb)
 
         # --- Estimation label ---
-        self.estimate_label = QtGui.QLabel("")
+        self.estimate_label = QtWidgets.QLabel("")
         self.estimate_label.setWordWrap(True)
         layout.addWidget(self.estimate_label)
 
@@ -169,25 +162,25 @@ class FocusedAnalysisPanel:
 
         for i, p in enumerate(self.all_params):
             # Column 0: Checkbox
-            cb = QtGui.QCheckBox()
+            cb = QtWidgets.QCheckBox()
             cb.setChecked(False)
             cb.stateChanged.connect(self._on_selection_changed)
             cb.stateChanged.connect(lambda state, idx=i: self._highlight_param(idx, state))
             self.key_table.setCellWidget(i, 0, cb)
 
             # Column 1: Parameter label (read-only)
-            label_item = QtGui.QTableWidgetItem(p.label)
+            label_item = QtWidgets.QTableWidgetItem(p.label)
             label_item.setFlags(label_item.flags() & ~QtCore.Qt.ItemIsEditable)
             self.key_table.setItem(i, 1, label_item)
 
             # Column 2: Current value (read-only)
             val_str = f"{p.value:.2f} {p.unit}"
-            val_item = QtGui.QTableWidgetItem(val_str)
+            val_item = QtWidgets.QTableWidgetItem(val_str)
             val_item.setFlags(val_item.flags() & ~QtCore.Qt.ItemIsEditable)
             self.key_table.setItem(i, 2, val_item)
 
             # Column 3: Source object (read-only)
-            src_item = QtGui.QTableWidgetItem(p.source_name)
+            src_item = QtWidgets.QTableWidgetItem(p.source_name)
             src_item.setFlags(src_item.flags() & ~QtCore.Qt.ItemIsEditable)
             self.key_table.setItem(i, 3, src_item)
 
@@ -268,16 +261,16 @@ class FocusedAnalysisPanel:
         self.related_table.setRowCount(len(self._related))
         for i, (p, dist, direction) in enumerate(self._related):
             self.related_table.setItem(
-                i, 0, QtGui.QTableWidgetItem(p.label)
+                i, 0, QtWidgets.QTableWidgetItem(p.label)
             )
             self.related_table.setItem(
-                i, 1, QtGui.QTableWidgetItem(f"{p.value:.2f} {p.unit}")
+                i, 1, QtWidgets.QTableWidgetItem(f"{p.value:.2f} {p.unit}")
             )
             self.related_table.setItem(
-                i, 2, QtGui.QTableWidgetItem(str(dist))
+                i, 2, QtWidgets.QTableWidgetItem(str(dist))
             )
             self.related_table.setItem(
-                i, 3, QtGui.QTableWidgetItem(direction)
+                i, 3, QtWidgets.QTableWidgetItem(direction)
             )
 
         self.related_table.resizeColumnsToContents()
@@ -389,7 +382,7 @@ class FocusedAnalysisPanel:
         """Called when OK is pressed."""
         selected_ids = self._get_selected_param_ids()
         if not selected_ids:
-            QtGui.QMessageBox.warning(
+            QtWidgets.QMessageBox.warning(
                 self.form, "No Parameters",
                 "Select at least one key parameter."
             )
@@ -397,7 +390,7 @@ class FocusedAnalysisPanel:
 
         ranges = self._build_ranges()
         if not ranges:
-            QtGui.QMessageBox.warning(
+            QtWidgets.QMessageBox.warning(
                 self.form, "No Valid Ranges",
                 "Could not build valid parameter ranges."
             )
@@ -417,10 +410,7 @@ class FocusedAnalysisPanel:
 
         Gui.Control.closeDialog()
 
-        try:
-            from .analysis_dialog import run_analysis_dialog
-        except ImportError:
-            from ui.analysis_dialog import run_analysis_dialog
+        from .analysis_dialog import run_analysis_dialog
         run_analysis_dialog(
             ranges, self.params_map, mode,
             n_samples or 100, nominal_values,
@@ -435,5 +425,5 @@ class FocusedAnalysisPanel:
 
     def getStandardButtons(self):
         return int(
-            QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel
+            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel
         )

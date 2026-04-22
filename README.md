@@ -27,7 +27,8 @@ Restart FreeCAD. The workbench will appear in the workbench selector.
 
 ### Requirements
 
-- FreeCAD 1.0 or later
+- FreeCAD 1.1 or later (PySide6 / Qt6)
+- Python 3.11 or later
 - No external Python dependencies
 
 ## Screenshots
@@ -35,25 +36,25 @@ Restart FreeCAD. The workbench will appear in the workbench selector.
 ### Parameter Detection
 Configure which parameters to vary, set custom ranges or use preset margins, and choose the variation mode.
 
-![Parameter detection panel](freecad/DesignProof/Resources/screenshots/01_param_panel.jpg)
+![Parameter detection panel](Resources/screenshots/01_param_panel.jpg)
 
 ### Running Analysis
 The analysis runs variation by variation, showing real-time progress over the 3D model.
 
-![Analysis in progress](freecad/DesignProof/Resources/screenshots/02_analysis_running.jpg)
+![Analysis in progress](Resources/screenshots/02_analysis_running.jpg)
 
 ### Analysis Results
 Results dialog with robustness rating, success rate, and detailed per-variation breakdown. Export to CSV for further analysis.
 
-![Analysis results dialog](freecad/DesignProof/Resources/screenshots/03_analysis_results.jpg)
+![Analysis results dialog](Resources/screenshots/03_analysis_results.jpg)
 
 ### Model Metrics
 Standalone dependency analysis with complexity metrics (Li entropy, cyclomatic complexity, graph density) and full feature dependency table.
 
-![Model metrics dialog](freecad/DesignProof/Resources/screenshots/04_model_metrics.jpg)
+![Model metrics dialog](Resources/screenshots/04_model_metrics.jpg)
 
 ### Full Workflow
-![DesignProof workflow demo](freecad/DesignProof/Resources/screenshots/05_workflow_demo.gif)
+![DesignProof workflow demo](https://github.com/Unai-Pz-de-A/FreeCAD-DesignProof/releases/download/v0.1.2/05_workflow_demo.gif)
 
 ## Features
 
@@ -99,12 +100,15 @@ DesignProof can also be used from FreeCAD's command line (`FreeCADcmd`) for batc
 import sys
 import FreeCAD as App
 
-sys.path.insert(0, "/path/to/DesignProof/freecad/DesignProof")
+# Adjust this path to the root of your DesignProof install
+sys.path.insert(0, "/path/to/FreeCAD-DesignProof")
 doc = App.openDocument("model.FCStd")
 
-from core.parameter_detector import detect_parameters
-from core.variation_engine import generate_variations, ParameterRange
-from core.recompute_tester import RobustnessTester
+from freecad.DesignProof.core.parameter_detector import detect_parameters
+from freecad.DesignProof.core.variation_engine import (
+    generate_variations, ParameterRange,
+)
+from freecad.DesignProof.core.recompute_tester import RobustnessTester
 
 params = detect_parameters(doc)
 ranges = [ParameterRange(p.id, p.value * 0.7, p.value * 1.3, steps=5)
