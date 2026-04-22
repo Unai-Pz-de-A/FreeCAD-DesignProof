@@ -17,11 +17,11 @@ Open FreeCAD, go to **Edit > Preferences > Addon Manager**, search for **DesignP
 
 ### Manual installation
 
-Copy the `DesignProof` folder to your FreeCAD Mod directory:
+Clone or download this repository and copy its contents into a `DesignProof` folder inside your FreeCAD Mod directory (so that `package.xml` ends up at `<Mod>/DesignProof/package.xml`):
 
-- **Windows**: `%APPDATA%/FreeCAD/Mod/`
-- **Linux**: `~/.FreeCAD/Mod/`
-- **macOS**: `~/Library/Preferences/FreeCAD/Mod/`
+- **Windows**: `%APPDATA%/FreeCAD/Mod/DesignProof/`
+- **Linux**: `~/.FreeCAD/Mod/DesignProof/`
+- **macOS**: `~/Library/Preferences/FreeCAD/Mod/DesignProof/`
 
 Restart FreeCAD. The workbench will appear in the workbench selector.
 
@@ -125,7 +125,7 @@ print(f"Success rate: {passed}/{len(results)} ({passed/len(results)*100:.1f}%)")
 
 ## Validated results
 
-Tested on 5 models of varying complexity with FreeCAD 1.0.2 on Windows:
+Tested on 5 models of varying complexity with FreeCAD 1.1 on Windows:
 
 | Model | Type | Parameters | Variations | Success Rate | Rating |
 |-------|------|-----------|------------|-------------|--------|
